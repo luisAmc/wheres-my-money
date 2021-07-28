@@ -11,20 +11,6 @@ export default withSession(async (req, res) => {
   await dbConnect();
 
   switch (method) {
-    case 'GET': {
-      try {
-        const session = await Session.findOne({
-          _id: req.session.get(IRON_SESSION_ID_KEY)
-        })
-          .populate('user', 'name email')
-          .lean();
-
-        return res.json({ me: session.user });
-      } catch (err) {
-        return res.status(400).json(err.message);
-      }
-    }
-
     case 'POST': {
       try {
         await removeSession(req);

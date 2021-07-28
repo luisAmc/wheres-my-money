@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { UserType } from './User';
+import User, { UserType } from './User';
 
 export interface SessionType {
   _id: mongoose.Types.ObjectId;
@@ -12,7 +12,7 @@ export interface SessionType {
 const SessionSchema = new mongoose.Schema(
   {
     expiresAt: { type: Date, default: Date.now },
-    user: { type: mongoose.Types.ObjectId, ref: 'User' }
+    user: { type: mongoose.Schema.Types.ObjectId, ref: User }
   },
   { timestamps: true }
 );

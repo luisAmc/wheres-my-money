@@ -52,7 +52,7 @@ export function SignUpForm() {
   }
 
   return (
-    <Container title='Crear Usuario'>
+    <Container title='Crear Usuario' size='lg'>
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de crear el usuario'

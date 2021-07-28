@@ -24,8 +24,8 @@ export async function authenticateUser(email: string, password: string) {
   const user = await User.findOne({ email });
 
   if (!user || !user.hashedPassword) {
-    throw new ValidationError('Usuario no encontrado.', {
-      email: 'Usuario no encontrado.'
+    throw new ValidationError('Correo no encontrado.', {
+      email: 'Correo no encontrado.'
     });
   }
 

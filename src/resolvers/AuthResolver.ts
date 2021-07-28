@@ -1,10 +1,5 @@
 import axios from '../utils/axios';
 
-export async function me() {
-  const response = await axios.get('/auth');
-  return response.data;
-}
-
 export async function logout() {
   const response = await axios.post('/auth');
   return response.data;

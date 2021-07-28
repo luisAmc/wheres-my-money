@@ -12,6 +12,7 @@ import {
 } from 'next-iron-session';
 import SessionModel, { SessionType } from '~/models/Session';
 import { UserType } from '~/models/User';
+import dbConnect from './dbConnect';
 
 if (!process.env.COOKIE_SECRET) {
   console.warn(
@@ -90,6 +91,8 @@ export async function resolveSession({
   const sessionID = ironReq.session.get(IRON_SESSION_ID_KEY);
 
   if (sessionID) {
+    await dbConnect();
+
     session = await SessionModel.findOne({ _id: sessionID }).populate(
       'user',
       'name email'
