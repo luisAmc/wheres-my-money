@@ -1,7 +1,5 @@
-import Session from '~/models/Session';
 import dbConnect from '~/utils/dbConnect';
 import withSession, {
-  IRON_SESSION_ID_KEY,
   removeSession
 } from '~/utils/sessions';
 

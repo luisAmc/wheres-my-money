@@ -6,7 +6,7 @@ import { Resume } from './Resume';
 export function Activity() {
   return (
     <>
-      <PageHeader href='/activity'>Mes Actual</PageHeader>
+      <PageHeader href='/transactions'>Mes Actual</PageHeader>
 
       <Resume />
 

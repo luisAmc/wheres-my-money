@@ -1,6 +1,7 @@
 import { useMutation } from 'react-query';
 import { logout } from '~/resolvers/AuthResolver';
 import { useAuthRedirect } from '~/utils/useAuthRedirect';
+import { Resume } from '../Transactions/Resume';
 import { Button } from '../ui/Button';
 import { Link } from '../ui/Link';
 
@@ -21,7 +22,7 @@ export function UserInfo({ user }: Props) {
     <>
       <h3>Hola, {user.name}</h3>
 
-      <Button href='/activity'>Ver mi actividad</Button>
+      <Button href='/transactions'>Ver mi actividad</Button>
 
       <div>
         <Link onClick={() => logoutMutation.mutateAsync()}>Cerrar Sesión</Link>

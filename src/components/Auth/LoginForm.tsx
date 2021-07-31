@@ -43,7 +43,7 @@ export function LoginForm() {
   }
 
   return (
-    <Container title='Ingresar' size='lg'>
+    <Container title='Ingresar'>
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de iniciar sesión'

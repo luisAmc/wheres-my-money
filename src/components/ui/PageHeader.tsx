@@ -9,7 +9,7 @@ type Props = {
 
 export function PageHeader({ href, children }: Props) {
   return (
-    <div className='sm:max-w-2xl mx-auto flex items-center space-x-4'>
+    <div className='sm:max-w-lg mx-auto flex items-center space-x-4'>
       {href && (
         <Link href={href}>
           <button className='ml-auto w-8 h-8 rounded-full flex items-center justify-center hover:bg-brand-500 transition ease-in-out'>

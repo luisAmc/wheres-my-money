@@ -4,7 +4,7 @@ import { UserInfo } from './UserInfo';
 
 export function Home({ data }) {
   return (
-    <Container size='lg'>
+    <Container>
       <div className='space-y-6'>
         <div className='text-3xl font-bold italic text-center'>
           <span className='bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-purple-500 px-1'>

@@ -9,3 +9,11 @@ body {
 form {
   margin-block-end: 0;
 }
+
+/* This correctly styles the minimal progress bar that is displayed when navigating between pages */
+#nprogress {
+  @apply pointer-events-none z-50;
+}
+#nprogress .bar {
+  @apply bg-brand-900 fixed z-50 top-0 left-0 w-full h-0.5;
+}
