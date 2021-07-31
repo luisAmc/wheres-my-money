@@ -16,22 +16,49 @@ export default withSession(async (req, res) => {
           'user'
         ).populate('user', '_id email');
 
-        const transactions = await Transaction.find({
-          user: session.user._id
-        })
+        const transactions = await Transaction.find({ user: session.user._id })
           .sort({ sort: -1, createdAt: -1 })
           .limit(10);
 
-        let [expenses, incomes] = [0, 0];
+        // TODO: Refactor this, maybe with aggregations
+        const incomesByCategory = new Map();
+        const expensesByCategory = new Map();
+
+        let [incomes, expenses] = [0, 0];
         for (const transaction of transactions) {
           if (transaction.type === 'income') {
             incomes += transaction.amount;
+
+            const total = incomesByCategory.get(transaction.category) ?? 0;
+
+            incomesByCategory.set(
+              transaction.category,
+              total + transaction.amount
+            );
           } else {
             expenses += transaction.amount;
+
+            const total = expensesByCategory.get(transaction.category) ?? 0;
+
+            expensesByCategory.set(
+              transaction.category,
+              total + transaction.amount
+            );
           }
         }
 
-        return res.json({ success: true, transactions, expenses, incomes });
+        return res.json({
+          success: true,
+          transactions,
+          incomes: {
+            total: incomes,
+            byCategory: Array.from(incomesByCategory)
+          },
+          expenses: {
+            total: expenses,
+            byCategory: Array.from(expensesByCategory)
+          }
+        });
       } catch (err) {
         return res.status(400).json(err.message);
       }

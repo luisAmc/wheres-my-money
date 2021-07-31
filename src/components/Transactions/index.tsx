@@ -27,7 +27,7 @@ export function Activity() {
             </Button>
           </div>
 
-          <Resume incomes={data?.incomes} expenses={data?.expenses} />
+          {data && <Resume incomes={data?.incomes} expenses={data?.expenses} />}
         </div>
       </Container>
 
@@ -40,7 +40,7 @@ export function Activity() {
           ) : (
             <div className='bg-white rounded-md flex flex-col space-y-4'>
               <div className='font-medium text-lg'>
-                Últimas 10 transacciones
+                Transacciones del periodo
               </div>
 
               <ul
