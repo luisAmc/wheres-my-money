@@ -16,9 +16,22 @@ export default withSession(async (req, res) => {
           'user'
         ).populate('user', '_id email');
 
-        const transactions = await Transaction.find({ user: session.user._id });
+        const transactions = await Transaction.find({
+          user: session.user._id
+        })
+          .sort({ sort: -1, createdAt: -1 })
+          .limit(10);
 
-        return res.json({ success: true, transactions });
+        let [expenses, incomes] = [0, 0];
+        for (const transaction of transactions) {
+          if (transaction.type === 'income') {
+            incomes += transaction.amount;
+          } else {
+            expenses += transaction.amount;
+          }
+        }
+
+        return res.json({ success: true, transactions, expenses, incomes });
       } catch (err) {
         return res.status(400).json(err.message);
       }

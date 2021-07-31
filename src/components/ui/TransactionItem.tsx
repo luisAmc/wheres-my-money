@@ -1,6 +1,6 @@
 import { TrendingDownIcon, TrendingUpIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
-import { formatAmount } from '~/utils/transforms';
+import { formatAmount, formatDate } from '~/utils/transforms';
 
 type Type = 'income' | 'expense';
 
@@ -18,6 +18,7 @@ interface Props {
   category: Category;
   notes?: string;
   amount: number;
+  date: Date;
 }
 
 function getCategoryTagLabel(category: Category) {
@@ -60,7 +61,13 @@ function CategoryTag({ category }: { category: Category }) {
   );
 }
 
-export function TransactionItem({ type, category, notes, amount }: Props) {
+export function TransactionItem({
+  type,
+  category,
+  notes,
+  amount,
+  date
+}: Props) {
   return (
     <li>
       <div className='flex p-4 hover:bg-gray-100'>
@@ -74,10 +81,13 @@ export function TransactionItem({ type, category, notes, amount }: Props) {
           <div>
             <CategoryTag category={category} />
             {notes && <div className='text-gray-500'>{notes}</div>}
+            <div className='text-sm text-gray-400'>{formatDate(date)}</div>
           </div>
         </div>
 
-        <div className='flex items-center justify-center'>{formatAmount(amount)}</div>
+        <div className='flex items-center justify-center ml-2'>
+          {formatAmount(amount)}
+        </div>
       </div>
     </li>
   );

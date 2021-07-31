@@ -33,5 +33,5 @@ export async function createTransaction(input: TransactionInput) {
 
 export async function getTransactions() {
   const response = await axios.get('/transactions');
-  return response.data.transactions;
+  return response.data;
 }

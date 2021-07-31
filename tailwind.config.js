@@ -1,6 +1,6 @@
 const colors = require('tailwindcss/colors');
 
-const brandColor = colors.rose;
+const brandColor = colors.sky;
 
 module.exports = {
   mode: 'jit',
@@ -13,7 +13,7 @@ module.exports = {
         ...colors,
 
         gray: colors.gray,
-        
+
         // Add a new "brand" color to all Tailwind utilities, so that we can easily change it.
         brand: brandColor
       },
@@ -26,5 +26,9 @@ module.exports = {
   variants: {
     extend: {}
   },
-  plugins: []
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/forms')
+  ]
 };
