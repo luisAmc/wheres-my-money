@@ -1,0 +1,59 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    // Include binary targets for whatever platform the user is on, ubuntu (dev), and alpine (prod).
+    binaryTargets   = ["native", "debian-openssl-1.1.x", "linux-musl"]
+    previewFeatures = ["orderByRelation", "selectRelationCount"]
+}
+
+model User {
+    id             String        @id @default(uuid())
+    name           String
+    email          String        @unique
+    hashedPassword Bytes
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+    transactions   Transaction[]
+    sessions       Session[]
+}
+
+model Session {
+    id        String   @id @default(uuid())
+    expiresAt DateTime @default(now())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    User      User     @relation(fields: [userId], references: [id])
+    userId    String
+}
+
+enum TransactionType {
+    INCOME
+    EXPENSE
+}
+
+enum TransactionCategory {
+    PAYMENT
+    FOOD
+    ENTERTAINMENT
+    HOME
+    CAR
+    CARD
+    OTHER
+}
+
+model Transaction {
+    id        String              @id @default(uuid())
+    type      TransactionType
+    date      DateTime            @default(now())
+    amount    Float               @default(0)
+    category  TransactionCategory @default(OTHER)
+    notes     String?
+    createdAt DateTime            @default(now())
+    updatedAt DateTime            @updatedAt
+    User      User                @relation(fields: [userId], references: [id])
+    userId    String
+}
