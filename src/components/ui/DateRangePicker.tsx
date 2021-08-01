@@ -1,3 +1,5 @@
+import { CalendarIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
 import { date, object, ref } from 'yup';
 import { formatDate } from '~/utils/transforms';
@@ -28,28 +30,40 @@ export function DateRangePicker({ onChange }: Props) {
   const modal = useModal();
   const form = useYupForm({ schema: dateRangeSchema });
 
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
+
   function onSubmit(values: FieldValues) {
+    setDateRange({ start: values.start, end: values.end });
     onChange(values);
     modal.close();
   }
 
   return (
     <>
-      <Button onClick={modal.open}>
-        <div className='flex justify-center space-x-4'>
-          <span className='flex items-center space-x-2'>
-            <span>Desde</span>
-            <span>{formatDate(new Date())}</span>
-          </span>
-          <span> - </span>
-          <span className='flex items-center space-x-2'>
-            <span>Hasta</span>
-            <span>{formatDate(new Date())}</span>
-          </span>
+      <Button variant='outlined' onClick={modal.open}>
+        <div className='flex items-center justify-center space-x-4'>
+          <CalendarIcon className='w-4 h-4' />
+
+          {dateRange.start ? (
+            <>
+              <span className='flex items-center space-x-2'>
+                <span>Desde</span>
+                <span>{formatDate(dateRange.start)}</span>
+              </span>
+              <span> - </span>
+              <span className='flex items-center space-x-2'>
+                <span>Hasta</span>
+                <span>{formatDate(dateRange.end)}</span>
+              </span>
+            </>
+          ) : (
+            <span>Mostrando transacciones del mes</span>
+          )}
         </div>
       </Button>
 
       <Modal title='Seleccione el Periodo' {...modal.props}>
+        {/* TODO: Use a calendar to select the range instead of the two input fields */}
         <Form form={form} onSubmit={onSubmit}>
           <div className='flex flex-col space-y-6'>
             <div className='flex flex-col space-y-6'>

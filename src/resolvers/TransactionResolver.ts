@@ -31,7 +31,7 @@ export async function createTransaction(input: TransactionInput) {
   return await axios.post('/transactions', input);
 }
 
-export async function getTransactions() {
-  const response = await axios.get('/transactions');
+export async function getTransactions(dateRange?: { start: Date; end: Date }) {
+  const response = await axios.get('/transactions', { params: dateRange });
   return response.data;
 }

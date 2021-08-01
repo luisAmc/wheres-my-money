@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { TransactionType } from '~/models/Transaction';
@@ -13,13 +12,11 @@ import { TransactionItem } from '../ui/TransactionItem';
 import { Resume } from './Resume';
 
 export function Activity() {
-  const { data, isLoading } = useQuery('transactions', () => getTransactions());
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
 
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
-
-  useEffect(() => {
-    console.log({ dateRange });
-  }, [dateRange]);
+  const { data, isLoading } = useQuery(['transactions', dateRange], () =>
+    getTransactions(dateRange)
+  );
 
   return (
     <>
@@ -28,10 +25,10 @@ export function Activity() {
       <Container title='Transacciones'>
         <div className='flex flex-col space-y-6'>
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-1'>
-            <Button variant='income' href='/transactions/new/income'>
+            <Button color='income' href='/transactions/new/income'>
               Ingreso
             </Button>
-            <Button variant='expense' color='' href='/transactions/new/expense'>
+            <Button color='expense' href='/transactions/new/expense'>
               Egreso
             </Button>
           </div>
@@ -39,8 +36,8 @@ export function Activity() {
           <DateRangePicker
             onChange={(range) =>
               setDateRange({
-                start: range.start.toISOString(),
-                end: range.end.toISOString()
+                start: range.start,
+                end: range.end
               })
             }
           />
