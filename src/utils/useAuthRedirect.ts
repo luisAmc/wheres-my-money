@@ -7,6 +7,6 @@ export function useAuthRedirect() {
 
   return () => {
     client.clear();
-    router.push((router.query.redirect as string) ?? '/');
+    router.push((router.query.redirect as string) ?? '/transactions');
   };
 }

@@ -1,4 +1,3 @@
-import expense from '~/pages/transactions/new/expense';
 import { formatAmount } from '~/utils/transforms';
 import { Doughnut } from '../ui/Doughnut';
 

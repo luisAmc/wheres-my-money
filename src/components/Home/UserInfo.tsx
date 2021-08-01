@@ -20,9 +20,11 @@ export function UserInfo({ user }: Props) {
 
   return (
     <>
-      <h3>Hola, {user.name}</h3>
+      <h3 className='text-center'>
+        Hola, <span className='font-semibold'>{user.name}</span>
+      </h3>
 
-      <Button href='/transactions'>Ver mi actividad</Button>
+      <Button href='/transactions'>Mis Transacciones</Button>
 
       <div>
         <Link onClick={() => logoutMutation.mutateAsync()}>Cerrar Sesión</Link>
