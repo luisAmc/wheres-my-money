@@ -1,0 +1,52 @@
+input CreateTransactionInput {
+  amount: Float!
+  category: String!
+  date: String!
+  notes: String!
+  type: String!
+}
+
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createTransaction(input: CreateTransactionInput!): Transaction!
+  login(input: LoginInput!): User!
+  logout: Result!
+  signUp(input: SignUpInput!): User!
+}
+
+type Query {
+  me: User
+  transactions: [Transaction!]!
+}
+
+enum Result {
+  SUCCESS
+}
+
+input SignUpInput {
+  email: String!
+  name: String!
+  password: String!
+}
+
+type Transaction {
+  amount: Float!
+  category: String!
+  createdAt: DateTime!
+  date: DateTime!
+  id: ID!
+  notes: String!
+  type: String!
+  updatedAt: DateTime!
+}
+
+type User {
+  id: ID!
+  name: String!
+}

@@ -15,7 +15,7 @@ type Category =
 
 interface Props {
   type: Type;
-  category: Category;
+  category: string;
   notes?: string;
   amount: number;
   date: Date;
@@ -79,7 +79,7 @@ export function TransactionItem({
           )}
 
           <div>
-            <CategoryTag category={category} />
+            <CategoryTag category={category as Category} />
             {notes && <div className='text-gray-500'>{notes}</div>}
             <div className='text-sm text-gray-400'>{formatDate(date)}</div>
           </div>

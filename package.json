@@ -1,11 +1,18 @@
 {
+  "name": "wheres-my-money",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "prisma": "next npx prisma",
-    "generate": "prisma generate"
+    "dev": "docker-compose up",
+    "dev:next": "next dev",
+    "build": "npm run generate && next build",
+    "start": "next start -p ${PORT-3000}",
+    "prisma:docker": "docker-compose run --publish 5555:5555 next npx prisma",
+    "setup:localhost": "node ./scripts/elevate.js ./scripts/setupLocalhost.js",
+    "clean:codegen": "trash \"./src/**/__generated__/**\"",
+    "generate": "prisma generate",
+    "codegen": "run-s -l \"codegen:*\"",
+    "codegen:schema": "ts-node --transpile-only -r tsconfig-paths/register ./src/graphql/index.ts",
+    "codegen:graphql": "graphql-codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.4.1",
@@ -24,6 +31,8 @@
     "chart.js": "^3.5.0",
     "clsx": "^1.1.1",
     "date-fns": "^2.23.0",
+    "graphql": "^15.5.1",
+    "graphql-helix": "^1.7.0",
     "mongoose": "^5.13.3",
     "next": "latest",
     "next-iron-session": "^4.2.0",
@@ -32,11 +41,15 @@
     "react-chartjs-2": "^3.0.4",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.12.0",
-    "react-query": "^3.19.1",
     "secure-password": "^4.0.0",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "zod": "^3.6.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.4",
+    "@graphql-codegen/near-operation-file-preset": "^1.18.4",
+    "@graphql-codegen/typescript": "^1.22.4",
+    "@graphql-codegen/typescript-operations": "^1.18.3",
     "@types/mongoose": "^5.11.97",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.15",
@@ -44,7 +57,19 @@
     "@types/secure-password": "^3.1.1",
     "autoprefixer": "^10.2.6",
     "postcss": "^8.3.5",
+    "prisma": "2.26.0",
+    "sudo-prompt": "^9.2.1",
     "tailwindcss": "^2.2.4",
+    "ts-node": "^10.0.0",
+    "tsconfig-paths": "^3.9.0",
     "typescript": "^4.3.5"
-  }
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ]
 }

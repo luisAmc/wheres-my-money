@@ -1,3 +1,4 @@
+import { Session, User } from '@prisma/client';
 import { IncomingMessage } from 'http';
 import {
   GetServerSidePropsContext,
@@ -6,13 +7,11 @@ import {
 } from 'next';
 import {
   applySession,
-  Session,
+  Session as IronSession,
   SessionOptions,
   withIronSession
 } from 'next-iron-session';
-import SessionModel, { SessionType } from '~/models/Session';
-import { UserType } from '~/models/User';
-import dbConnect from './dbConnect';
+import { db } from './prisma';
 
 if (!process.env.COOKIE_SECRET) {
   console.warn(
@@ -27,7 +26,7 @@ const SESSION_TTL = 1 * 24 * 3600 * 1000;
 // The key that we store the actual database ID of the session in:
 export const IRON_SESSION_ID_KEY = 'sessionID';
 
-export type NextIronRequest = NextApiRequest & { session: Session };
+export type NextIronRequest = NextApiRequest & { session: IronSession };
 
 export type NextIronHandler = (
   req: NextIronRequest,
@@ -50,13 +49,10 @@ const withSession = (handler: NextIronHandler) =>
 
 export default withSession;
 
-export async function createSession(req: NextIronRequest, user: UserType) {
-  const session = new SessionModel({
-    user: user._id,
-    expiresAt: Date.now() + SESSION_TTL
+export async function createSession(req: NextIronRequest, user: User) {
+  const session = await db.session.create({
+    data: { userId: user.id, expiresAt: new Date(Date.now() + SESSION_TTL) }
   });
-
-  await session.save();
 
   req.session.set(IRON_SESSION_ID_KEY, session.id);
   await req.session.save();
@@ -64,17 +60,19 @@ export async function createSession(req: NextIronRequest, user: UserType) {
   return session;
 }
 
-export async function removeSession(req: IncomingMessage) {
+export async function removeSession(req: IncomingMessage, session: Session) {
   const ironReq = req as unknown as NextIronRequest;
 
-  const sessionID = ironReq.session.get(IRON_SESSION_ID_KEY);
-
-  await SessionModel.deleteOne({ _id: sessionID });
+  await db.session.delete({ where: { id: session.id } });
 
   ironReq.session.destroy();
 }
 
-const sessionCache = new WeakMap<IncomingMessage, SessionType | null>();
+interface PrismaSession extends Session {
+  user: User;
+}
+
+const sessionCache = new WeakMap<IncomingMessage, PrismaSession | null>();
 export async function resolveSession({
   req,
   res
@@ -85,28 +83,35 @@ export async function resolveSession({
 
   await applySession(req, res, sessionOptions);
 
-  let session: SessionType | null = null;
+  let session: PrismaSession | null = null;
 
   const ironReq = req as unknown as NextIronRequest;
   const sessionID = ironReq.session.get(IRON_SESSION_ID_KEY);
 
   if (sessionID) {
-    await dbConnect();
-
-    session = await SessionModel.findOne({ _id: sessionID }).populate(
-      'user',
-      'name email'
-    );
+    session = await db.session.findFirst({
+      where: {
+        id: sessionID,
+        expiresAt: {
+          gte: new Date()
+        }
+      },
+      include: {
+        user: true
+      }
+    });
 
     if (session) {
       const shouldRefreshSession =
         Date.now() - session.expiresAt.getTime() < 0.75 * SESSION_TTL;
 
       if (shouldRefreshSession) {
-        await SessionModel.updateOne(
-          { _id: session._id },
-          { expiresAt: new Date(Date.now() + SESSION_TTL) }
-        );
+        await db.session.update({
+          where: { id: session.id },
+          data: {
+            expiresAt: new Date(Date.now() + SESSION_TTL)
+          }
+        });
 
         await ironReq.session.save();
       }

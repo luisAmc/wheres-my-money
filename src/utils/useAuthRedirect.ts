@@ -1,12 +1,12 @@
+import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { useQueryClient } from 'react-query';
 
 export function useAuthRedirect() {
-  const client = useQueryClient();
+  const client = useApolloClient();
   const router = useRouter();
 
   return () => {
-    client.clear();
+    client.resetStore();
     router.push((router.query.redirect as string) ?? '/transactions');
   };
 }

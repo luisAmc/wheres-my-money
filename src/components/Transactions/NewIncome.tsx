@@ -2,14 +2,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { date, number, object, string } from 'yup';
-import {
-  createTransaction,
-  INCOME_CATEGORY,
-  TransactionInput,
-  TRANSACTION_TYPE
-} from '~/resolvers/TransactionResolver';
 import { Container } from '../ui/Container';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { Form, useYupForm } from '../ui/Form';

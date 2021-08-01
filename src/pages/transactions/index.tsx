@@ -1,6 +1,8 @@
 import { GetServerSideProps } from 'next';
-import { authenticatedRoute } from '~/utils/redirects';
+import { preloadQuery } from '~/utils/apollo';
+import { Transactions, query } from '~/components/Transactions';
 
-export const getServerSideProps: GetServerSideProps = authenticatedRoute;
+export const getServerSideProps: GetServerSideProps = (ctx) =>
+  preloadQuery(ctx, { query });
 
-export { Activity as default } from '~/components/Transactions';
+export default Transactions;

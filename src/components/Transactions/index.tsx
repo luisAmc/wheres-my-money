@@ -1,7 +1,6 @@
+import { gql, useQuery } from '@apollo/client';
+import { Transaction, TransactionCategory } from '@prisma/client';
 import { useState } from 'react';
-import { useQuery } from 'react-query';
-import { TransactionType } from '~/models/Transaction';
-import { getTransactions } from '~/resolvers/TransactionResolver';
 import { Button } from '../ui/Button';
 import { Container } from '../ui/Container';
 import { DateRangePicker } from '../ui/DateRangePicker';
@@ -10,13 +9,25 @@ import { Loading } from '../ui/Loading';
 import { PageHeader } from '../ui/PageHeader';
 import { TransactionItem } from '../ui/TransactionItem';
 import { Resume } from './Resume';
+import { TransactionsQuery } from './__generated__/index.generated';
 
-export function Activity() {
+export const query = gql`
+  query TransactionsQuery {
+    transactions {
+      id
+      type
+      date
+      amount
+      category
+      notes
+    }
+  }
+`;
+
+export function Transactions() {
   const [dateRange, setDateRange] = useState({ start: null, end: null });
 
-  const { data, isLoading } = useQuery(['transactions', dateRange], () =>
-    getTransactions(dateRange)
-  );
+  const { data, loading, error } = useQuery<TransactionsQuery>(query);
 
   return (
     <>
@@ -42,12 +53,12 @@ export function Activity() {
             }
           />
 
-          {data && <Resume incomes={data?.incomes} expenses={data?.expenses} />}
+          {/* {data && <Resume incomes={data?.incomes} expenses={data?.expenses} />} */}
         </div>
       </Container>
 
       <Container>
-        {isLoading && <Loading />}
+        {loading && <Loading />}
 
         {data &&
           (data.transactions?.length === 0 ? (
@@ -62,11 +73,11 @@ export function Activity() {
                 className='rounded-md border overflow-hidden mt-5 divide-y divide-gray-200 sm:mt-0'
                 role='list'
               >
-                {data.transactions?.map((transaction: TransactionType) => (
+                {data.transactions?.map((transaction: Transaction) => (
                   <TransactionItem
-                    key={`${transaction._id}`}
-                    type={transaction.type}
-                    category={transaction.category}
+                    key={`${transaction.id}`}
+                    type={transaction.type === 'INCOME' ? 'income' : 'expense'}
+                    category={transaction.category.toLowerCase()}
                     notes={transaction.notes}
                     amount={transaction.amount}
                     date={transaction.date}

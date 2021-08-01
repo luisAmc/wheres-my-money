@@ -1,19 +1,20 @@
+import { ApolloProvider } from '@apollo/client';
 import { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { Layout } from '~/components/Layout';
 import { NProgress } from '~/components/NProgress';
+import { useApollo } from '~/utils/apollo';
 import '../styles.css';
 
-const queryClient = new QueryClient();
-
 function MyApp({ Component, pageProps }: AppProps) {
+  const client = useApollo(pageProps.initialClientState);
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <ApolloProvider client={client}>
       <Layout>
         <NProgress />
         <Component {...pageProps} />
       </Layout>
-    </QueryClientProvider>
+    </ApolloProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 type Props = {
   title: string;
-  error?: string;
+  error?: Error;
 };
 
 export function ErrorMessage({ title, error }: Props) {
@@ -12,7 +12,9 @@ export function ErrorMessage({ title, error }: Props) {
         {title}
       </h3>
 
-      <div className='text-sm text-red-700 dark:text-red-200'>{error}</div>
+      <div className='text-sm text-red-700 dark:text-red-200'>
+        {error.message}
+      </div>
     </div>
   );
 }

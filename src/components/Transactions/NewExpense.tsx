@@ -1,15 +1,10 @@
+import { gql, useMutation } from '@apollo/client';
+import { TransactionCategory, TransactionType } from '@prisma/client';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { date, number, object, string } from 'yup';
-import {
-  createTransaction,
-  EXPENSE_CATEGORY,
-  TransactionInput,
-  TRANSACTION_TYPE
-} from '~/resolvers/TransactionResolver';
 import { Container } from '../ui/Container';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { Form, useYupForm } from '../ui/Form';
@@ -18,6 +13,10 @@ import { PageHeader } from '../ui/PageHeader';
 import { RadioButton, RadioGroup } from '../ui/RadioButton';
 import { SubmitButton } from '../ui/SubmitButton';
 import { TextArea } from '../ui/TextArea';
+import {
+  CreateTransactionForm,
+  CreateTransactionFormVariables
+} from './__generated__/NewExpense.generated';
 
 const newExpenseSchema = object().shape({
   date: date()
@@ -35,28 +34,42 @@ const newExpenseSchema = object().shape({
 export function NewExpense() {
   const router = useRouter();
 
-  const createMutation = useMutation(
-    (input: TransactionInput) => createTransaction(input),
+  const [createTransaction, createTransactionResult] = useMutation<
+    CreateTransactionForm,
+    CreateTransactionFormVariables
+  >(
+    gql`
+      mutation CreateTransactionForm($input: CreateTransactionInput!) {
+        createTransaction(input: $input) {
+          id
+          type
+          date
+          amount
+          category
+          notes
+        }
+      }
+    `,
     {
-      onError: (error: AxiosError) => {
-        setError(error?.response?.data);
-      },
-      onSuccess: () => {
+      onCompleted() {
         router.push('/transactions');
       }
     }
   );
 
-  const [error, setError] = useState('');
   const form = useYupForm({ schema: newExpenseSchema });
 
   async function onSubmit(values: FieldValues) {
-    createMutation.mutateAsync({
-      type: TRANSACTION_TYPE.EXPENSE,
-      date: values.date,
-      amount: values.amount,
-      category: values.category,
-      notes: values.notes
+    createTransaction({
+      variables: {
+        input: {
+          type: TransactionType.EXPENSE,
+          date: values.date,
+          amount: values.amount,
+          category: values.category,
+          notes: values.notes
+        }
+      }
     });
   }
 
@@ -68,7 +81,7 @@ export function NewExpense() {
         <Form form={form} onSubmit={onSubmit}>
           <ErrorMessage
             title='Ocurrio un error al tratar de crear el egreso'
-            error={error}
+            error={createTransactionResult.error}
           />
 
           <Input
@@ -84,27 +97,27 @@ export function NewExpense() {
             <RadioButton
               label='Comida'
               description='Restaurantes, compras en supermercados...'
-              value={EXPENSE_CATEGORY.FOOD}
+              value={TransactionCategory.FOOD}
             />
             <RadioButton
               label='Entretenimiento'
               description='Subscripciones, juegos, cine...'
-              value={EXPENSE_CATEGORY.ENTERTAINMENT}
+              value={TransactionCategory.ENTERTAINMENT}
             />
             <RadioButton
               label='Carro'
               description='Combustible, mantenimientos...'
-              value={EXPENSE_CATEGORY.CAR}
+              value={TransactionCategory.CAR}
             />
             <RadioButton
               label='Casa'
               description='Utensilios, materiales de limpieza...'
-              value={EXPENSE_CATEGORY.HOME}
+              value={TransactionCategory.HOME}
             />
             <RadioButton
               label='Otro'
               description='Algo no categorizado...'
-              value={EXPENSE_CATEGORY.OTHER}
+              value={TransactionCategory.OTHER}
             />
           </RadioGroup>
 

@@ -1,15 +1,17 @@
-import { AxiosError } from 'axios';
+import { gql, useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { object, string } from 'yup';
-import { login, LoginInput } from '~/resolvers/AuthResolver';
 import { useAuthRedirect } from '~/utils/useAuthRedirect';
 import { Container } from '../ui/Container';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { Form, useYupForm } from '../ui/Form';
 import { Input } from '../ui/Input';
 import { SubmitButton } from '../ui/SubmitButton';
+import {
+  LoginFormMutation,
+  LoginFormMutationVariables
+} from './__generated__/LoginForm.generated';
 
 const loginSchema = object().shape({
   email: string()
@@ -23,23 +25,28 @@ const loginSchema = object().shape({
 export function LoginForm() {
   const authRedirect = useAuthRedirect();
 
-  const loginMutation = useMutation((input: LoginInput) => login(input), {
-    onError: (error: AxiosError) => {
-      setError(error?.response?.data);
-    },
-    onSuccess: () => {
-      authRedirect();
+  const [login, loginResult] = useMutation<
+    LoginFormMutation,
+    LoginFormMutationVariables
+  >(
+    gql`
+      mutation LoginFormMutation($input: LoginInput!) {
+        login(input: $input) {
+          id
+        }
+      }
+    `,
+    {
+      onCompleted() {
+        authRedirect();
+      }
     }
-  });
+  );
 
-  const [error, setError] = useState('');
   const form = useYupForm({ schema: loginSchema });
 
-  async function onSubmit(values: FieldValues) {
-    loginMutation.mutateAsync({
-      email: values.email,
-      password: values.password
-    });
+  async function onSubmit({ email, password }) {
+    login({ variables: { input: { email, password } } });
   }
 
   return (
@@ -47,7 +54,7 @@ export function LoginForm() {
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de iniciar sesión'
-          error={error}
+          error={loginResult.error}
         />
 
         <Input

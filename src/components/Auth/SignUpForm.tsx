@@ -1,15 +1,16 @@
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { object, string } from 'yup';
 import { Container } from '../ui/Container';
 import { Form, useYupForm } from '../ui/Form';
 import { Input } from '../ui/Input';
 import { SubmitButton } from '../ui/SubmitButton';
-import { signUp, SignUpInput } from '~/resolvers/AuthResolver';
-import { AxiosError } from 'axios';
 import { ErrorMessage } from '../ui/ErrorMessage';
-import { useState } from 'react';
 import { useAuthRedirect } from '~/utils/useAuthRedirect';
+import { gql, useMutation } from '@apollo/client';
+import {
+  SignUpFormMutation,
+  SignUpFormMutationVariables
+} from './__generated__/SignUpForm.generated';
 
 const signUpSchema = object().shape({
   name: string().required('Ingrese el nombre.'),
@@ -31,23 +32,35 @@ const signUpSchema = object().shape({
 export function SignUpForm() {
   const authRedirect = useAuthRedirect();
 
-  const signUpMutation = useMutation((input: SignUpInput) => signUp(input), {
-    onError: (error: AxiosError) => {
-      setError(error?.response?.data);
-    },
-    onSuccess: () => {
-      authRedirect();
+  const [signUp, signUpResult] = useMutation<
+    SignUpFormMutation,
+    SignUpFormMutationVariables
+  >(
+    gql`
+      mutation SignUpFormMutation($input: SignUpInput!) {
+        signUp(input: $input) {
+          id
+        }
+      }
+    `,
+    {
+      onCompleted() {
+        authRedirect();
+      }
     }
-  });
+  );
 
-  const [error, setError] = useState('');
   const form = useYupForm({ schema: signUpSchema });
 
   async function onSubmit(values: FieldValues) {
-    signUpMutation.mutateAsync({
-      name: values.name,
-      email: values.email,
-      password: values.password
+    signUp({
+      variables: {
+        input: {
+          name: values.name,
+          email: values.email,
+          password: values.password
+        }
+      }
     });
   }
 
@@ -56,7 +69,7 @@ export function SignUpForm() {
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de crear el usuario'
-          error={error}
+          error={signUpResult.error}
         />
 
         <Input
