@@ -18,7 +18,7 @@ export function useModal() {
   };
 }
 
-interface Props {
+export interface Props {
   title: string;
   open: boolean;
   onClose: () => void;
@@ -65,7 +65,7 @@ export function Modal({ title, open, onClose, children }: Props) {
             leaveFrom='opacity-100 scale-100'
             leaveTo='opacity-0 scale-95'
           >
-            <div className='inline-block w-full max-w-md px-4 mb-6 sm:mb-0 pt-5 pb-4 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl'>
+            <div className='inline-block w-full max-w-md px-6 pt-6 pb-7 mb-6 sm:mb-0 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl'>
               <div className='flex items-center justify-between mb-3'>
                 <Dialog.Title
                   as='h3'

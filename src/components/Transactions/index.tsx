@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { TransactionType } from '~/models/Transaction';
 import { getTransactions } from '~/resolvers/TransactionResolver';
 import { Button } from '../ui/Button';
 import { Container } from '../ui/Container';
+import { DateRangePicker } from '../ui/DateRangePicker';
 import { Empty } from '../ui/Empty';
 import { Loading } from '../ui/Loading';
 import { PageHeader } from '../ui/PageHeader';
@@ -11,6 +14,12 @@ import { Resume } from './Resume';
 
 export function Activity() {
   const { data, isLoading } = useQuery('transactions', () => getTransactions());
+
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
+  useEffect(() => {
+    console.log({ dateRange });
+  }, [dateRange]);
 
   return (
     <>
@@ -26,6 +35,15 @@ export function Activity() {
               Egreso
             </Button>
           </div>
+
+          <DateRangePicker
+            onChange={(range) =>
+              setDateRange({
+                start: range.start.toISOString(),
+                end: range.end.toISOString()
+              })
+            }
+          />
 
           {data && <Resume incomes={data?.incomes} expenses={data?.expenses} />}
         </div>
