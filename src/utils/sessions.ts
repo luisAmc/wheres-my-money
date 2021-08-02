@@ -39,7 +39,8 @@ const sessionOptions: SessionOptions = {
   cookieName: 'session.info',
   ttl: SESSION_TTL,
   cookieOptions: {
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production',
+    secure: false,
     sameSite: 'strict',
     httpOnly: true
   }
@@ -87,7 +88,7 @@ export async function resolveSession({
 
   let session: SessionType | null = null;
 
-  const ironReq = req as unknown as NextIronRequest;
+  const ironReq = req as NextIronRequest;
   const sessionID = ironReq.session.get(IRON_SESSION_ID_KEY);
 
   if (sessionID) {
