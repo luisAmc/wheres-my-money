@@ -1,44 +1,50 @@
-import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { Container } from '../shared/Container';
+import { ErrorMessage } from '../shared/ErrorMessage';
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { Form, useYupForm } from '../shared/Form';
+import { graphql, useMutation } from 'relay-hooks';
+import { Input } from '../shared/Input';
 import { object, string } from 'yup';
-import { login, LoginInput } from '~/resolvers/AuthResolver';
+import { SubmitButton } from '../shared/SubmitButton';
 import { useAuthRedirect } from '~/utils/useAuthRedirect';
-import { Container } from '../ui/Container';
-import { ErrorMessage } from '../ui/ErrorMessage';
-import { Form, useYupForm } from '../ui/Form';
-import { Input } from '../ui/Input';
-import { SubmitButton } from '../ui/SubmitButton';
+import { LoginFormMutation } from './__generated__/LoginFormMutation.graphql';
 
 const loginSchema = object().shape({
-  email: string()
-    .email('El texto ingresado no es un correo válido.')
-    .required('Ingrese el correo.'),
+  username: string().trim().required('Ingrese el usuario.'),
   password: string()
-    .min(6, 'El tamaño mínimo de la contraseña es seis caracteres')
+    .trim()
+    .min(6, 'El tamaño mínimo de la conrtaseña es seis caracteres.')
     .required('Ingrese la contraseña.')
 });
 
 export function LoginForm() {
   const authRedirect = useAuthRedirect();
 
-  const loginMutation = useMutation((input: LoginInput) => login(input), {
-    onError: (error: AxiosError) => {
-      setError(error?.response?.data);
-    },
-    onSuccess: () => {
-      authRedirect();
+  const [login, { error }] = useMutation<LoginFormMutation>(
+    graphql`
+      mutation LoginFormMutation($input: LoginInput!) {
+        login(input: $input) {
+          id
+        }
+      }
+    `,
+    {
+      onCompleted() {
+        authRedirect();
+      }
     }
-  });
+  );
 
-  const [error, setError] = useState('');
   const form = useYupForm({ schema: loginSchema });
 
   async function onSubmit(values: FieldValues) {
-    loginMutation.mutateAsync({
-      email: values.email,
-      password: values.password
+    login({
+      variables: {
+        input: {
+          username: values.username,
+          password: values.password
+        }
+      }
     });
   }
 
@@ -47,21 +53,21 @@ export function LoginForm() {
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de iniciar sesión'
-          error={error}
+          error={error?.message}
         />
 
         <Input
-          {...form.register('email')}
+          {...form.register('username')}
           autoFocus
-          label='Correo'
-          autoComplete='email'
+          label='Usuario'
+          autoComplete='username'
         />
 
         <Input
           {...form.register('password')}
           label='Contraseña'
-          type='password'
           autoComplete='password'
+          type='password'
         />
 
         <SubmitButton>Iniciar Sesión</SubmitButton>

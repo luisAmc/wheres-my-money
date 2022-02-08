@@ -1,4 +1,4 @@
-import { Link } from '~/components/ui/Link';
+import { Link } from '~/components/shared/Link';
 import { MoonIcon } from '@heroicons/react/outline'
 
 export default function Custom404() {

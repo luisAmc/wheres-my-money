@@ -3,16 +3,14 @@ const colors = require('tailwindcss/colors');
 const brandColor = colors.sky;
 
 module.exports = {
-  mode: 'jit',
-  purge: ['./src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: false, // or 'media' or 'class'
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         // Use the expanded colors
         ...colors,
 
-        gray: colors.gray,
+        gray: colors.stone,
 
         // Add a new "brand" color to all Tailwind utilities, so that we can easily change it.
         brand: brandColor
@@ -23,12 +21,5 @@ module.exports = {
       }
     }
   },
-  variants: {
-    extend: {}
-  },
-  plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/forms')
-  ]
+  plugins: []
 };

@@ -1,19 +1,18 @@
 import { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { RelayEnvironmentProvider } from 'relay-hooks';
 import { Layout } from '~/components/Layout';
 import { NProgress } from '~/components/NProgress';
+import { relayEnvironment } from '~/relayEnvironment';
 import '../styles.css';
-
-const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <RelayEnvironmentProvider environment={relayEnvironment}>
       <Layout>
         <NProgress />
         <Component {...pageProps} />
       </Layout>
-    </QueryClientProvider>
+    </RelayEnvironmentProvider>
   );
 }
 

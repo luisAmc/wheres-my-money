@@ -1,0 +1,2 @@
+import './AuthResolvers';
+import './UserResolvers';

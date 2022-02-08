@@ -1,7 +1,6 @@
 import SecurePassword from 'secure-password';
-import { ValidationError } from 'yup';
-import User from '~/models/User';
-import dbConnect from './dbConnect';
+import { ValidationError } from 'src/graphql/errors';
+import { db } from './prisma';
 
 const securePassword = new SecurePassword();
 
@@ -13,19 +12,16 @@ export async function verifyPassword(hashedPassword: Buffer, password: string) {
   try {
     return await securePassword.verify(Buffer.from(password), hashedPassword);
   } catch (error) {
-    console.log(error);
     return SecurePassword.INVALID;
   }
 }
 
-export async function authenticateUser(email: string, password: string) {
-  await dbConnect();
-
-  const user = await User.findOne({ email });
+export async function authenticateUser(username: string, password: string) {
+  const user = await db.user.findFirst({ where: { username } });
 
   if (!user || !user.hashedPassword) {
-    throw new ValidationError('Correo no encontrado.', {
-      email: 'Correo no encontrado.'
+    throw new ValidationError('Usuario no encontrado.', {
+      username: 'Usuario no encontrado.'
     });
   }
 
@@ -37,7 +33,12 @@ export async function authenticateUser(email: string, password: string) {
 
     case SecurePassword.VALID_NEEDS_REHASH:
       const improvedHash = await hashPassword(password);
-      await User.updateOne({ _id: user._id }, { hashedPassword: improvedHash });
+
+      await db.user.update({
+        where: { id: user.id },
+        data: { hashedPassword: improvedHash }
+      });
+
       break;
 
     default:

@@ -1,53 +1,59 @@
 import { FieldValues } from 'react-hook-form';
-import { useMutation } from 'react-query';
 import { object, string } from 'yup';
-import { Container } from '../ui/Container';
-import { Form, useYupForm } from '../ui/Form';
-import { Input } from '../ui/Input';
-import { SubmitButton } from '../ui/SubmitButton';
-import { signUp, SignUpInput } from '~/resolvers/AuthResolver';
-import { AxiosError } from 'axios';
-import { ErrorMessage } from '../ui/ErrorMessage';
-import { useState } from 'react';
+import { Container } from '../shared/Container';
+import { Form, useYupForm } from '../shared/Form';
+import { Input } from '../shared/Input';
+import { SubmitButton } from '../shared/SubmitButton';
+import { ErrorMessage } from '../shared/ErrorMessage';
 import { useAuthRedirect } from '~/utils/useAuthRedirect';
+import { graphql, useMutation } from 'relay-hooks';
+import { SignUpFormMutation } from './__generated__/SignUpFormMutation.graphql';
 
 const signUpSchema = object().shape({
-  name: string().required('Ingrese el nombre.'),
-  email: string()
-    .email('El texto ingresado no es un correo válido.')
-    .required('Ingrese el correo.'),
+  username: string().trim().required('Ingrese el nombre de usuario.'),
   password: string()
-    .min(6, 'El tamaño mínimo de la contraseña es seis caracteres')
+    .trim()
+    .min(6, 'El tamaño mínimo de la conrtaseña es seis caracteres.')
     .required('Ingrese la contraseña.'),
-  confirmPassword: string().test(
-    'does-password-match',
-    'Las contraseñas no coinciden.',
-    function (value) {
-      return this.parent.password === value;
-    }
-  )
+  confirmPassword: string()
+    .trim()
+    .test(
+      'does-password-match',
+      'Las contraseñas no coinciden.',
+      function (value) {
+        return this.parent.password === value;
+      }
+    )
 });
 
 export function SignUpForm() {
   const authRedirect = useAuthRedirect();
 
-  const signUpMutation = useMutation((input: SignUpInput) => signUp(input), {
-    onError: (error: AxiosError) => {
-      setError(error?.response?.data);
-    },
-    onSuccess: () => {
-      authRedirect();
+  const [signUp, { error }] = useMutation<SignUpFormMutation>(
+    graphql`
+      mutation SignUpFormMutation($input: SignUpInput!) {
+        signUp(input: $input) {
+          id
+        }
+      }
+    `,
+    {
+      onCompleted() {
+        authRedirect();
+      }
     }
-  });
+  );
 
-  const [error, setError] = useState('');
   const form = useYupForm({ schema: signUpSchema });
 
   async function onSubmit(values: FieldValues) {
-    signUpMutation.mutateAsync({
-      name: values.name,
-      email: values.email,
-      password: values.password
+    signUp({
+      variables: {
+        input: {
+          username: values.username,
+          password: values.password
+        }
+      }
     });
   }
 
@@ -56,20 +62,13 @@ export function SignUpForm() {
       <Form form={form} onSubmit={onSubmit}>
         <ErrorMessage
           title='Ocurrio un error al tratar de crear el usuario'
-          error={error}
+          error={error?.message}
         />
 
         <Input
-          {...form.register('name')}
-          autoFocus
-          label='Nombre'
-          autoComplete='name'
-        />
-
-        <Input
-          {...form.register('email')}
-          label='Correo'
-          autoComplete='email'
+          {...form.register('username')}
+          label='Usuario'
+          autoComplete='username'
         />
 
         <Input

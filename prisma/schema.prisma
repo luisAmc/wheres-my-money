@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+model User {
+  id             String        @id @default(uuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  username       String        @unique
+  hashedPassword Bytes
+  sessions       Session[]
+  transactions   Transaction[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionCategory {
+  PAYMENT
+  FOOD
+  ENTERTAINMENT
+  HOME
+  CAR
+  CARD
+  OTHER
+}
+
+model Transaction {
+  id        String              @id @default(uuid())
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  date      DateTime
+  amount    Int
+  notes     String?
+  type      TransactionType
+  category  TransactionCategory
+  user      User                @relation(fields: [userId], references: [id])
+  userId    String
+}

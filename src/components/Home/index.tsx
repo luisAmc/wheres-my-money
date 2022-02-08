@@ -1,8 +1,7 @@
-import { Container } from '../ui/Container';
+import { Container } from '../shared/Container';
 import { SignedOut } from './SignedOut';
-import { UserInfo } from './UserInfo';
 
-export function Home({ data }) {
+export function Home() {
   return (
     <Container>
       <div className='space-y-6'>
@@ -12,7 +11,7 @@ export function Home({ data }) {
           </span>
         </div>
 
-        {data && data.me ? <UserInfo user={data?.me} /> : <SignedOut />}
+        {/* {data && data.me ? <UserInfo user={data?.me} /> : <SignedOut />} */}
       </div>
     </Container>
   );
