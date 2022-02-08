@@ -7,7 +7,16 @@ input LoginInput {
 
 type Mutation {
   login(input: LoginInput!): User!
+  newTransaction(input: NewTransactionInput!): Transaction!
   signUp(input: SignUpInput!): User!
+}
+
+input NewTransactionInput {
+  amount: Float!
+  category: String!
+  date: DateTime!
+  notes: String!
+  type: String!
 }
 
 type Query {
@@ -19,7 +28,17 @@ input SignUpInput {
   username: String!
 }
 
+type Transaction {
+  amount: Float!
+  category: String!
+  date: DateTime!
+  id: ID!
+  notes: String
+  type: String!
+}
+
 type User {
   id: ID!
+  transactions: [Transaction!]!
   username: String!
 }
